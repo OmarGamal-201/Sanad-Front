@@ -15,7 +15,7 @@ export class LoginComponent {
   isLoading = false;
   errorMessage = '';
 
-  constructor(private loginService: LoginService, private router: Router) {}
+  constructor(private loginService: LoginService, private router: Router) { }
 
   onSubmit(): void {
     if (!this.email || !this.password) return;
@@ -26,6 +26,10 @@ export class LoginComponent {
     this.loginService.login(this.email, this.password).subscribe({
       next: (res) => {
         this.isLoading = false;
+
+        // مش محتاج تحفظ الداتا هنا ولا تحدث الحالة.. السيرفيس عملت ده خلاص!
+
+        // التوجيه للرئيسية فوراً
         this.router.navigate(['/home']);
       },
       error: (err) => {

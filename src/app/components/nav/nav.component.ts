@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { LoginService } from '../../services/login.service'; // استيراد السيرفيس
 
 @Component({
   selector: 'app-nav',
@@ -11,35 +12,31 @@ export class NavComponent implements OnInit {
   isLoggedIn = false;
   userName = '';
 
-  constructor(private router: Router) { }
+  // حقن السيرفيس في الـ constructor
+  constructor(private router: Router, private loginService: LoginService) { }
 
-  // الدالة دي بتشتغل أول ما النافبار يظهر على الشاشة
   ngOnInit(): void {
-    this.checkLoginStatus();
+    // الاستماع لأي تغيير في حالة اليوزر من السيرفيس
+    this.loginService.user$.subscribe(user => {
+      if (user) {
+        this.isLoggedIn = true;
+        this.userName = user.name;
+      } else {
+        this.isLoggedIn = false;
+        this.userName = '';
+      }
+    });
   }
 
-  // بنشيك إذا كان في بيانات يوزر محفوظة في المتصفح
-  checkLoginStatus() {
-    const userString = localStorage.getItem('user');
-    if (userString) {
-      const user = JSON.parse(userString);
-      this.isLoggedIn = true;
-      this.userName = user.name; // بناخد الاسم من الأوبجيكت
-    }
-  }
-
-  // دالة تسجيل الخروج
   logout() {
-    // 1. نمسح الداتا من المتصفح
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // 1. بننادي على دالة الخروج من السيرفيس
+    // (وهي هتقوم بمسح الـ localStorage وتصفير القناة أوتوماتيك)
+    this.loginService.logout();
 
-    // 2. نرجع المتغيرات لحالتها الأصلية
-    this.isLoggedIn = false;
-    this.userName = '';
-
-    // 3. نقفل منيو الموبايل (لو مفتوحة) ونوجهه للرئيسية أو اللوجين
+    // 2. بنقفل قائمة الموبايل لو كانت مفتوحة
     this.isMobileMenuOpen = false;
+
+    // 3. بنوجه المستخدم لصفحة تسجيل الدخول
     this.router.navigate(['/login']);
   }
 
